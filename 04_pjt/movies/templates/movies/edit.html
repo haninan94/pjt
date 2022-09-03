@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>EDIT</h1>
+  <hr>
+  <form action="{% url 'movies:update' movie.pk %}" method="POST">
+    {% csrf_token %}
+    <label for="title">TITLE</label>
+    <input type="text" id="title" name="title" value="{{ movie.title }}">
+    <br>
+    <label for="audience">AUDIENCE</label>
+    <input type="number" id="audience" name="audience" value="{{ movie.audience }}">
+    <br>
+    <label for="release_date">RELEASE DATE</label>
+    <input type="date" id="release_date" name="release_date" value="{{ movie.release_date|date:"Y-m-d" }}">
+    <br>
+    <label for="genre">GENRE</label>
+    <select id="genre" name="genre">
+      {% for genre in genre_list %}
+        {% if genre == movie.genre %}
+          <option value="{{ movie.genre }}" selected>{{ movie.genre }}</option>
+        {% else %}
+          <option value="{{ movie.genre }}">{{ movie.genre }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+    <br>
+    <label for="score">SCORE</label>
+    <input type="number" step="0.01" id="score" name="score" value="{{ movie.score }}">
+    <br>
+    <label for="poster_url">POSTER_URL</label>
+    <input type="text" id="poster_url" name="poster_url" value="{{ movie.poster_url }}">
+    <br>
+    <label for="description">DESCRIPTION</label>
+    <textarea name="description" id="description">{{ movie.description }}</textarea>
+    <br>
+    <input type="reset" value="Reset">
+    <input type="submit" value="Submit">
+  </form>
+  <hr>
+  <a href="{% url 'movies:index' %}">back</a>
+
+{% endblock content %}
