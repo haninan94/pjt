@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ person.username }}의 프로필 페이지</h1>
+  {% with followings=person.followings.all followers=person.followers.all %}
+    <div>
+      <div>
+        팔로워 : <span id="followers-count">{{ followings|length }}</span> /
+        팔로잉 : <span id="followings-count">{{ followers|length }}</span>
+      </div>
+      {% if user != person %}
+        <div>
+          <form id="follow-form" data-user-id="{{ person.pk }}">
+            {% csrf_token %}
+            {% if user in followers %}
+              <input type="submit" value="언팔로우" class="btn btn-danger">
+              {% else %}
+              <input type="submit" value="팔로우" class="btn btn-primary">
+            {% endif %}
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  {% endwith %}
+{% endblock %}
+
+{% block script %}
+    <script>
+      const form = document.querySelector('#follow-form')
+      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault()
+
+        const userId = event.target.dataset.userId
+
+        axios ({
+          method: 'post',
+          url: `/accounts/${userId}/follow/`,
+          headers: {'X-CSRFToken': csrftoken},
+        })
+        .then ((response) => {
+          const isFollowed = response.data.is_followed
+          const followButton = document.querySelector('#follow-form > input[type=submit]')
+          
+          
+          if (isFollowed) {
+            followButton.value = '언팔로우'
+          } else {
+            followButton.value = '팔로우'
+          }
+
+          followButton.classList.toggle('btn-primary')
+          followButton.classList.toggle('btn-danger')
+
+          const followerCountTag = document.querySelector('#followers-count')
+          const followingCountTag = document.querySelector('#followings-count')
+
+          
+
+          followerCountTag.innerText = response.data.followers_count
+          followingCountTag.innerText = response.data.followings_count
+        })
+      })
+    </script>
+{% endblock script %}
